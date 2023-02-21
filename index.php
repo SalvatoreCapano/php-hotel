@@ -36,9 +36,11 @@ $hotels = [
         'parking' => true,
         'vote' => 2,
         'distance_to_center' => 50
-    ],
-
+    ]
 ];
+
+$parkingFilter = $_GET['parking'] ?? [''];
+$voteFilter = intval($_GET['vote'] ?? ['0']);
 
 ?>
 
@@ -58,56 +60,94 @@ $hotels = [
 
 <body>
 
-    <h1>PHP Hotel</h1>
+    <div class="container">
+        <h1>PHP Hotel</h1>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Description</th>
-                <th scope="col">Parking</th>
-                <th scope="col">Vote</th>
-                <th scope="col">Distance to Center</th>
-            </tr>
-        </thead>
-        <tbody>
+        <div class="formContainer mb-5">
+            <h3 class="mb-0">Filters</h3>
+            <form method="GET">
 
-            <?php
-            foreach ($hotels as $hotelElement) {
-                echo '<tr>';
+                <div class="mb-3">
+                    <label for="vote" class="form-label">Minimum Vote</label>
+                    <select id="vote" class="form-select" name="vote">
+                        <option value="0" selected>All</option>
+                        <option value="1">1 Star</option>
+                        <option value="2">2 Star</option>
+                        <option value="3">3 Star</option>
+                        <option value="4">4 Star</option>
+                        <option value="5">5 Star</option>
+                    </select>
+                </div>
 
-                foreach ($hotelElement as $dataName => $hotelData) {
-                    echo '<td>';
-                    
-                    // Per il dato 'parcheggio' stampa un icona
-                    if ($dataName == 'parking') {
-                        if ($hotelData == true) {
-                            echo '<i class="bi bi-check"></i>';
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="parking" name="parking" value="true">
+                    <label class="form-check-label" for="parking">Parking</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Search</button>
+
+            </form>
+        </div> <!-- /formContainer-->
+
+        <div class="tableContainer">
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Name</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Parking</th>
+                        <th scope="col">Vote</th>
+                        <th scope="col">Distance to Center</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <?php
+                    foreach ($hotels as $hotelElement) {
+                        echo '<tr>';
+
+                        if (
+                            (isset($_GET['parking']) ?
+                                ($hotelElement['parking'] == $parkingFilter) : (($hotelElement['parking'] == true) || ($hotelElement['parking'] == false)))
+                            &&
+                            $hotelElement['vote'] >= $voteFilter
+
+                        ) {
+                            foreach ($hotelElement as $dataName => $hotelData) {
+                                echo '<td>';
+
+                                // Per il dato 'parcheggio' stampa un icona
+                                if ($dataName == 'parking') {
+                                    if ($hotelData == true) {
+                                        echo '<i class="bi bi-check"></i>';
+                                    } else echo '-';
+                                }
+
+                                // Stampa dato
+                                else {
+                                    echo $hotelData;
+                                }
+
+                                // Stampa '/5' nel voto
+                                if ($dataName == 'vote') {
+                                    echo '/5';
+                                } else if ($dataName == 'distance_to_center') {
+                                    echo ' km';
+                                }
+                                echo '</td>';
+                            }
                         }
-                        else echo '-';
-                    }
-                    
-                    // Stampa dato
-                    else {
-                        echo $hotelData;
+
+                        echo '</tr>';
                     }
 
-                    // Stampa '/5' nel voto
-                    if ($dataName == 'vote') {
-                        echo '/5';
-                    }
-                    else if ($dataName == 'distance_to_center') {
-                        echo ' km';
-                    }
-                    echo '</td>';
-                }
+                    ?>
+                </tbody>
+            </table>
 
-                echo '</tr>';
-            }
-
-            ?>
-        </tbody>
-    </table>
+        </div> <!-- /tableContainer-->
+    </div> <!-- container/-->
 
 </body>
 
